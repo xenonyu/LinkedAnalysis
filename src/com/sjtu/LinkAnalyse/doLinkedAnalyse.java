@@ -1,16 +1,11 @@
 package com.sjtu.LinkAnalyse;
 
 import com.sjtu.LinkAnalyse.ObjectToJson.EventLogNodInf;
-import com.sjtu.LinkAnalyse.ObjectToJson.LinkedLogFormat;
 import com.sjtu.LinkAnalyse.ObjectToJson.LogFormat;
-import com.sjtu.LinkAnalyse.daoImp.EventLogDaoImpl;
 import com.sjtu.LinkAnalyse.service.EventLogService;
 import com.sjtu.LinkAnalyse.serviceImp.EventLogServiceImpl;
-import com.sjtu.LinkAnalyse.utils.JsonUtils;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
+
+import java.io.*;
 import java.util.*;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -21,17 +16,12 @@ public class doLinkedAnalyse {
 	 */
 	//1.监测间隔。单位为s
 	static String MonitorTimePeroid = null;
-	//2.首次监测时间。1970-01-01 08:00:00表示从第一条记录开始检测，否则设定监测时间
-	static String firstMonitorTime = null;
-	//3.数据库研判时间段
-	static String DatePeroid = null;
-	//上次监测时间
-    static volatile long lastTimeMillis = 0;
-    static volatile long firstTimeMillis = 0;
-    static long currentTimeMillis = System.currentTimeMillis();
+	//上次监测ID
+    static volatile long lastAnalysisID = -1;
+    static Long currentID = null;
     //初始化log4J
     private static void initLogRecord(){
-        Properties props = null;
+        Properties props;
         FileInputStream fis = null;
         try {
             props = new Properties();
@@ -62,51 +52,32 @@ public class doLinkedAnalyse {
 		//2.导入输入流
 		properties.load(is);
 		//3.读取属性
-		firstMonitorTime = properties.getProperty("firstMonitorTime");
-		
-		//int firstMonitorTT = Integer.parseInt(firstMonitorTime);
-		//int startAtFirstMonitorTime = 0;
-		//if(firstMonitorTT != 0) startAtFirstMonitorTime = 1;
-		//else startAtFirstMonitorTime = 0;
-		DatePeroid = properties.getProperty("DatePeroid");
-		MonitorTimePeroid = properties.getProperty("MonitorTimePeroid");
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		//Date firstTime = new Date();
-		long time = dateFormatter.parse(firstMonitorTime).getTime();
-		boolean first = true;
+		lastAnalysisID = Long.parseLong(properties.getProperty("lastAnalysisID"));
+		MonitorTimePeroid = properties.getProperty("MonitorTimePeriod");
         Date startDate = new Date();
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask(){
             public void run()
             {
-            	//HashMap<String, ArrayList<LogFormat>> map = new HashMap<>();
                 EventLogService service = new EventLogServiceImpl();
                 try {
-                	//如果默认，则设置首次监测时间
-                	if(lastTimeMillis == firstTimeMillis) {
-                		if (time == 0) {
-                        	firstTimeMillis =  service.findFirstRecordTime();
-                            lastTimeMillis = firstTimeMillis;
-                        }
-                        else {
-                        	long firstTime = dateFormatter.parse(firstMonitorTime).getTime();
-                        	lastTimeMillis = firstTime;
-                        }
-                		currentTimeMillis = lastTimeMillis + Long.parseLong(DatePeroid) * 1000L;
-                	}
-                	
                 	logger.info("开始研判!");
 //                	logger.
 //                	logger.info("数据库记录开始时间 :%d{yyyy-MM-dd HH:mm:ss}" ,lastTimeMillis);
                 	//System.out.println("开始研判");
-                	
+
                     HashMap<String, ArrayList<LogFormat>> map = new HashMap<>();
                     //把位于lastTimeMillis和currentTimeMillis之间的记录全部取出来，并按照gid，将链路上的日志节点放入Map中。
-                    List<LogFormat> list = service.findRecordWithPeriod(lastTimeMillis, currentTimeMillis);
+                    List<LogFormat> list = service.findRecordWithID(lastAnalysisID);
+
                     if(list == null || list.size() == 0) {
                     	logger.error("数据库数据为空或已研判完毕。请检查数据库!");
+                    	System.out.println("数据库无剩余数据。");
+                    	return;
 //                    	throw new RuntimeException("数据库数据为空或已研判完毕。请检查数据库!");
                     }
+                    Collections.sort(list);
+                    currentID = list.get(list.size()-1).getEventLog_request_id();
                     for (int i = 0; i < list.size(); i++) {
                         LogFormat log = list.get(i);
                         if(log == null) continue;
@@ -139,8 +110,13 @@ public class doLinkedAnalyse {
                     logger.info(result);
                     System.out.println(result);
                     map = new HashMap<>();
-                    lastTimeMillis = currentTimeMillis;
-                    currentTimeMillis = lastTimeMillis + Long.parseLong(DatePeroid) * 1000L;
+                    lastAnalysisID = currentID;
+
+                    properties.setProperty("lastAnalysisID", Long.toString(lastAnalysisID));
+                    OutputStream out = new FileOutputStream("./properties/analysis.properties");
+
+                    properties.store(out, "Update " +"lastAnalysisID" + " name");
+//                    System.exit(0);
                 } catch (Exception e) {
                     e.printStackTrace();
                     timer.cancel();

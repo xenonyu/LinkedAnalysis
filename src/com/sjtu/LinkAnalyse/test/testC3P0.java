@@ -7,8 +7,6 @@ import com.sjtu.LinkAnalyse.service.EventLogService;
 import com.sjtu.LinkAnalyse.serviceImp.EventLogServiceImpl;
 import com.sjtu.LinkAnalyse.utils.C3P0Utils;
 import com.sjtu.LinkAnalyse.utils.JDBCUtil;
-
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,11 +18,6 @@ import org.junit.Test;
 public class testC3P0 {
     private EventLogDao dao = new EventLogDaoImpl();
     private EventLogService service = new EventLogServiceImpl();
-    @Test
-    public void testC3P0() throws Exception{
-        Long time= dao.findFirstRecordTime();
-        System.out.println(time);
-    }
     
     @Test
     public void testC3P02() throws Exception{
@@ -32,54 +25,25 @@ public class testC3P0 {
 		PreparedStatement ps = null;
 		try {		
 			//1.创建dataSource
-			ComboPooledDataSource dataSource = new ComboPooledDataSource();
-			//2.设置连接数据库的信息
-			dataSource.setDriverClass("com.mysql.jdbc.Driver");
-			
-			//忘记了---->去以前的代码----> jdbc的文档
-			dataSource.setJdbcUrl("jdbc:mysql://202.120.39.22:33060/dzpj_yczs_log?useUnicode=true&amp;characterEncoding=utf-8");
-			dataSource.setUser("root");
-			dataSource.setPassword("ccflab");
-			
+			ComboPooledDataSource dataSource = new ComboPooledDataSource("demo");
+			System.out.println(dataSource.getPassword());
+
 			// 3.得到连接对象
 			conn = dataSource.getConnection();
 
-			String sql = "select * from event_log where eventLog_request_id=?";
+			String sql = "select * from event_log where id = ?";
 			ps = conn.prepareStatement(sql);
-			ps.setLong(1, 2328L);
+			ps.setLong(1, 12711);
 
 			ResultSet resultSet = ps.executeQuery();
 			while(resultSet.next()){
-				long id = resultSet.getLong("eventLog_request_id");// 获取第一个列的值 编号id
-				String serviceName = resultSet.getString("service_name"); // 获取第二个列的值 图书名称 bookName
-				int spanType = resultSet.getInt("span_type");// 获取第三列的值 图书作者 author
-				long spanTimestamp = resultSet.getLong("span_timestamp");// 获取第四列的值 图书价格 price
-				System.out.println("id="+id+" serviceName="+serviceName
+				String serviceName = resultSet.getString("serviceName");
+				int spanType = resultSet.getInt("spanType");
+				long spanTimestamp = resultSet.getLong("spanTimestamp");
+				System.out.println("serviceName="+serviceName
 						            +" spanType="+spanType);
 				System.out.println("................................................");
 			}
-			
-			
-//			dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/users");
-//			dataSource.setUser("root");
-//			dataSource.setPassword("123456");
-//			// 3.得到连接对象
-//			conn = dataSource.getConnection();
-//
-//			String sql = "select * from t_user where id=?";
-//			ps = conn.prepareStatement(sql);
-//			ps.setInt(1, 1);
-//
-//			ResultSet resultSet = ps.executeQuery();
-//			while(resultSet.next()){
-//				int id = resultSet.getInt("id");// 获取第一个列的值 编号id
-//				String userName = resultSet.getString("username"); // 获取第二个列的值 图书名称 bookName
-//				String passWord = resultSet.getString("password");// 获取第三列的值 图书作者 author
-//				String nickName = resultSet.getString("nickname");// 获取第四列的值 图书价格 price
-//				System.out.println("id="+id+" passWord="+passWord
-//						            +" nickName="+nickName);
-//				System.out.println("................................................");
-//			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,13 +61,6 @@ public class testC3P0 {
 			ComboPooledDataSource dataSource = new ComboPooledDataSource();
 			//2.得到连接对象
 			conn = dataSource.getConnection();
-
-//			String sql = "insert into account values(null, ?, ?)";
-//			ps = conn.prepareStatement(sql);
-//			ps.setString(1, "guodegang");
-//			ps.setInt(2, 1000);
-//
-//			ps.executeUpdate();
 			
 			
 			String sql = "select * from t_user where id=?";

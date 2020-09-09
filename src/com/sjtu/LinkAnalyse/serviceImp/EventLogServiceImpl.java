@@ -6,43 +6,52 @@ import com.sjtu.LinkAnalyse.ObjectToJson.LogFormat;
 import com.sjtu.LinkAnalyse.dao.EventLogDao;
 import com.sjtu.LinkAnalyse.service.EventLogService;
 import com.sjtu.LinkAnalyse.daoImp.EventLogDaoImpl;
-import com.sjtu.LinkAnalyse.utils.JsonUtils;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.BeanHandler;
-import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class EventLogServiceImpl implements EventLogService {
     private EventLogDao eventLogDao = new EventLogDaoImpl();
-    public List<LogFormat> findRecordWithPeriod(long startTime, long endTime) throws Exception{
-        return eventLogDao.findRecordWithPeriod(startTime, endTime);
+    public List<LogFormat> findRecordWithID(long startID) throws Exception{
+        return eventLogDao.findRecordWithID(startID);
     }
 
-    public Long findFirstRecordTime() throws Exception {
+	@Override
+	public List<LogFormat> findRecordWithGlobalID(String globalID) throws Exception {
+    	return eventLogDao.findRecordWithGlobalID(globalID);
+	}
 
-        return eventLogDao.findFirstRecordTime();
-    }
+	public boolean checkExistGlobalID(String global_id) throws Exception {
+		return eventLogDao.checkExistGlobalID(global_id);
+	}
 
-    public List<SortedMap<String, EventLogNodInf>> generateLinkedLogFormat(HashMap<String, ArrayList<LogFormat>> map){
+
+	public List<SortedMap<String, EventLogNodInf>> generateLinkedLogFormat(HashMap<String, ArrayList<LogFormat>> map){
     	ArrayList<SortedMap<String, EventLogNodInf>> list = new ArrayList<>();
 		/**
 		 * 遍历每个globalId, 即每个链路请求
 		 */
 		for (Map.Entry<String, ArrayList<LogFormat>> entry: map.entrySet()) {
-            ArrayList<LogFormat> resList = entry.getValue();
+			/**
+			 * 判断linked_record是否存在，存在就删除记录，并重新研判
+			 */
+			String globalID = entry.getKey();
+			ArrayList<LogFormat> resList = entry.getValue();
+			try {
+				if(eventLogDao.checkExistGlobalID(globalID, true)){
+					resList = (ArrayList<LogFormat>)eventLogDao.findRecordWithGlobalID(globalID);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+
             LinkedLogFormat headExcepLinkedLog = null;
             LinkedLogFormat secondExcepLinkedLog = null;
             boolean excepFirst = true;

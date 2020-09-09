@@ -1,50 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <c3p0-config>
-  <default-config>
-    <!-- default-config 默认的配置-->
-<!--    <property name="driverClass">com.mysql.jdbc.Driver</property>-->
-<!--    <property name="jdbcUrl">jdbc:mysql://10.10.27.230:3306/ycxw?useUnicode=true&amp;characterEncoding=utf-8</property>-->
-<!--    <property name="user">root</property>-->
-<!--    <property name="password">root19123!@#&amp;</property>-->
 
-    <property name="driverClass">com.mysql.jdbc.Driver</property>
-    <property name="jdbcUrl">jdbc:mysql://202.120.39.22:33060/ycxw?useUnicode=true&amp;characterEncoding=utf-8</property>
-    <property name="user">root</property>
-    <property name="password">ccflab</property>
-    <!--
-    <property name="driverClass">com.mysql.jdbc.Driver</property>
-    <property name="jdbcUrl">jdbc:mysql://124.127.47.86:3316/ycxw?useUnicode=true&amp;characterEncoding=utf-8</property>
-    <property name="user">root</property>
-    <property name="password">root19123!@#&amp;</property>
-      -->
-    <property name="initialPoolSize">10</property>
-    <property name="maxIdleTime">30</property>
-    <property name="maxPoolSize">100</property>
-    <property name="minPoolSize">10</property>
-    <property name="maxStatements">200</property>
-  </default-config>
+    <!-- 默认配置，如果没有指定则使用这个配置 -->
 
-  <!-- This app is massive! -->
-  <named-config name="oracle">
-    <property name="acquireIncrement">50</property>
-    <property name="initialPoolSize">100</property>
-    <property name="minPoolSize">50</property>
-    <property name="maxPoolSize">1000</property>
+    <default-config>
+        <property name="driverClass">com.mysql.jdbc.Driver</property>
+        <property name="jdbcUrl">
+            jdbc:mysql://202.120.39.22:33060/ycxw?useUnicode=true&amp;characterEncoding=utf-8
+        </property>
+        <property name="user">root</property>
+        <property name="password">ccflab</property>
+        <!-- 初始化池大小 -->
+        <property name="initialPoolSize">2</property>
+        <!-- 最大空闲时间 -->
+        <property name="maxIdleTime">30</property>
+        <!-- 最多有多少个连接 -->
+        <property name="maxPoolSize">10</property>
+        <!-- 最少几个连接 -->
+        <property name="minPoolSize">2</property>
+        <!-- 如果池中数据连接不够时一次增长多少个 -->
+        <property name="acquireIncrement">2</property>
+        <!-- 每次最多可以执行多少个批处理语句 -->
+        <property name="maxStatements">50</property>
+    </default-config>     <!-- 命名的配置 -->
 
-    <!-- intergalactoApp adopts a different approach to configuring statement caching -->
-    <property name="maxStatements">0</property>
-    <property name="maxStatementsPerConnection">5</property>
+    <named-config name="121">
+        <property name="driverClass">com.mysql.jdbc.Driver</property>
+        <property name="jdbcUrl">
+            jdbc:mysql://121.43.172.70:19724/ycxw?useUnicode=true&amp;characterEncoding=utf-8
+        </property>
+        <property name="user">root</property>
+        <property name="password">root19123!@#&amp;</property>
+        <!-- 初始化池大小 -->
+        <property name="initialPoolSize">2</property>
+        <!-- 最大空闲时间 -->
+        <property name="maxIdleTime">30</property>
+        <!-- 最多有多少个连接 -->
+        <property name="maxPoolSize">10</property>
+        <!-- 最少几个连接 -->
+        <property name="minPoolSize">2</property>
+        <!-- 如果池中数据连接不够时一次增长多少个 -->
+        <property name="acquireIncrement">2</property>
+        <!-- 每次最多可以执行多少个批处理语句 -->
+        <property name="maxStatements">50</property>
+    </named-config>
 
-    <!-- he's important, but there's only one of him -->
-    <user-overrides user="master-of-the-universe">
-      <property name="acquireIncrement">1</property>
-      <property name="initialPoolSize">1</property>
-      <property name="minPoolSize">1</property>
-      <property name="maxPoolSize">5</property>
-      <property name="maxStatementsPerConnection">50</property>
-    </user-overrides>
-  </named-config>
+    <named-config name="ljw">
+        <property name="driverClass">com.mysql.jdbc.Driver</property>
+        <property name="jdbcUrl">
+            jdbc:mysql://202.120.39.22:33060/dzpj_aqts_20190418?useUnicode=true&amp;characterEncoding=utf-8
+        </property>
+        <property name="user">root</property>
+        <property name="password">ccflab</property>
 
-
+        <!-- 初始化池大小 -->
+        <property name="initialPoolSize">2</property>
+        <!-- 最大空闲时间 -->
+        <property name="maxIdleTime">30</property>
+        <!-- 最多有多少个连接 -->
+        <property name="maxPoolSize">10</property>
+        <!-- 最少几个连接 -->
+        <property name="minPoolSize">2</property>
+        <!-- 如果池中数据连接不够时一次增长多少个 -->
+        <property name="acquireIncrement">2</property>
+        <!-- 每次最多可以执行多少个批处理语句 -->
+        <property name="maxStatements">50</property>
+    </named-config>
 </c3p0-config>
-	

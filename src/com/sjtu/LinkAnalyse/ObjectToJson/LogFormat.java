@@ -11,7 +11,7 @@ import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.util.UUID;
 @JSONType(orders={"eventLog_request_id","service_name","span_type","span_timestamp","spanTimestamp_date", "endpoint_ip", "endpoint_port", "parameter", "errContent", "create_date", "global_id", "re_id", "parent_reid", "isAbormal", "abnormalType", "responseTime"})
-public class LogFormat {
+public class LogFormat implements Comparable<LogFormat>{
     private Long eventLog_request_id;
     private String service_name;
     private Integer span_type;
@@ -197,5 +197,15 @@ public class LogFormat {
         //LogFormat format = new LogFormat(serviceName, spanType, spanTimestamp, endpointPortIp, endpointPortPort, null, errorConent, gid, UUid);
         //System.out.println(LogFormat.Obj2Json(format));
     }
+
+	/**
+	 * 添加对比
+	 * @param o
+	 * @return
+	 */
+	@Override
+	public int compareTo(LogFormat o) {
+		return (int) (this.eventLog_request_id - o.eventLog_request_id);
+	}
 }
 

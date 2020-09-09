@@ -13,12 +13,17 @@ public interface EventLogService {
     /**
      * 查询时间段内的所有记录
      */
-    public List<LogFormat> findRecordWithPeriod(long startTime, long endTime) throws Exception;
+    public List<LogFormat> findRecordWithID(long startID) throws Exception;
+
+    public List<LogFormat> findRecordWithGlobalID(String globalID) throws Exception;
 
     /**
-     * 查询第一条记录的时间
+     * 判断数据库linked_record表中是否存在global_id
+     * @param global_id
+     * @throws Exception
+     * @return
      */
-    public Long findFirstRecordTime() throws Exception;
+    public boolean checkExistGlobalID(String global_id) throws Exception;
 
     /**
      * 将链路上node串联
